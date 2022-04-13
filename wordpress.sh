@@ -10,11 +10,14 @@ echo "============================================"
 
 vared -p "Site Name: " -c SITENAME
 #vared -p "Hostname: " -c HOSTNAME
-vared -p "Database Root Password: " -c DB_ACCESS_PASS
+
 vared -p "WP DB Migate Pro License Key: " -c DBMIGRATE_KEY
 vared -p "Pull from URL: " -c SOURCE_URL
 vared -p "Source site secret: " -c SOURCE_KEY
 
+echo "Please enter the username and password of a database user with create database privileges."
+vared -p "Database Access Username: " -c DB_ACCESS_USER
+vared -p "Database Access Password: " -c DB_ACCESS_PASS
 
 DBNAME=${$($PWD/slugify.sh $SITENAME):gs/-/_}
 DBPASS=$(openssl rand -base64 32)
@@ -36,12 +39,12 @@ echo "============================================"
 
 echo "Make the database. $DBNAME"
 # Make a database.
-mysql -u root -p$DB_ACCESS_PASS -e "CREATE DATABASE $DBNAME"
+mysql -u $DB_ACCESS_USER -p$DB_ACCESS_PASS -e "CREATE DATABASE $DBNAME"
 echo "CREATE USER '$DBUSER'@'localhost' IDENTIFIED BY '$DBPASS'"
-mysql -u root -p$DB_ACCESS_PASS -e "CREATE USER '$DBUSER'@'localhost' IDENTIFIED BY '$DBPASS'"
+mysql -u $DB_ACCESS_USER -p$DB_ACCESS_PASS -e "CREATE USER '$DBUSER'@'localhost' IDENTIFIED BY '$DBPASS'"
 echo "GRANT ALL PRIVILEGES ON $DBNAME.* TO '$DBUSER'@'localhost'"
-mysql -u root -p$DB_ACCESS_PASS -e "GRANT ALL PRIVILEGES ON $DBNAME.* TO '$DBUSER'@'localhost'"
-mysql -u root -p$DB_ACCESS_PASS -e "FLUSH PRIVILEGES"
+mysql -u $DB_ACCESS_USER -p$DB_ACCESS_PASS -e "GRANT ALL PRIVILEGES ON $DBNAME.* TO '$DBUSER'@'localhost'"
+mysql -u $DB_ACCESS_USER -p$DB_ACCESS_PASS -e "FLUSH PRIVILEGES"
 
 echo "Download WordPress."
 wp core download --path="$INSTALL_DIR" --force
